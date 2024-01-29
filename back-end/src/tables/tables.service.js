@@ -24,12 +24,11 @@ function read(table_id) {
 }
 
 // seat a reservation at a table
-function seat(updatedTable) {
+function seat(reservation_id, table_id) {
     return knex("tables")
-        .select("*")
-        .where({ table_id: updatedTable.table_id })
-        .update(updatedTable, "*")
-        .then((updatedTables) => updatedTables[0]);
+          .where({ table_id })
+          .update({ reservation_id })
+          .returning("*")
 }
 
 // finish a table

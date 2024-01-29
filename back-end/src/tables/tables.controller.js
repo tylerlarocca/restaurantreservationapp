@@ -30,13 +30,13 @@ function tableNameLength(req, res, next) {
 // validation middleware: checks that capacity is a number
 function capacityIsNumber(req, res, next) {
     const { capacity } = req.body.data;
-    if (!isNaN(capacity)) {
-        return next();
-    } else {
+    if(!capacity || capacity.length){ 
         return next({
-            status: 400, 
-            message: `capacity field formatted incorrectly: ${capacity}. Needs to be a number.`
+        status: 400, 
+        message: `capacity field formatted incorrectly: ${capacity}. Needs to be a number.`
         });
+    } else {
+        return next();
     }
 }
 
@@ -79,7 +79,6 @@ async function reservationExists(req, res, next) {
 function tableCapacity(req, res, next) { 
     const { capacity } = res.locals.table;
     const { people } = res.locals.reservation;
-    console.log("line 82", people, capacity);
     if (people > capacity) {
         return next({
             status: 400, 
@@ -92,17 +91,15 @@ function tableCapacity(req, res, next) {
 
 // validation middleware: checks if table status is free
 function tableStatusFree(req, res, next) {
-    const { status } = res.locals.table;
-    console.log("line 108",status, res.locals.table.reservation_id);
-    if (status === "Free") {
-        return next();
-    } else {
+    if (res.locals.table.reservation_id) {
         return next({
-            status: 400, 
-            message: "Table is currently occupied."
+          status: 400,
+          message: "Table is currently occupied."
         });
-    }
-}
+      } else {
+        next();
+      }
+    }    
 
 // validation middleware: checks if table status is free
 // function tableStatusOccupied(req, res, next) {
@@ -131,25 +128,27 @@ async function create(req, res) {
 
 // seat a reservation at a table
 async function seat(req, res) {
+    const { reservation_id } = req.body.data;
+    const { table_id } = req.params;
     const { table } = res.locals;
-    const { reservation_id } = res.locals.reservation;
-    // const { table_id } = req.params;
-    const updatedTableData = {
-        // ...table,
-        ...req.body.data,
-        table_id: res.locals.table.table_id,
-        reservation_id: reservation_id,
-        status: "Occupied",
-    }
-    console.log("line 144", updatedTableData);
-    const updatedTable = await service.seat(updatedTableData);
-    // set reservation status to "seated" using reservation id
-    const updatedReservation = {
-        status: "seated", 
-        reservation_id: reservation_id,
-    }
-    await reservationService.update(updatedReservation);
-    res.json({ data: updatedTable });
+    // const updatedTableData = {
+    //     // ...table,
+    //     ...req.body.data,
+    //     table_id: res.locals.table.table_id,
+    //     reservation_id: reservation_id,
+    //     status: "Occupied",
+    // }
+    // console.log("line 144", updatedTableData);
+    // const updatedTable = await service.seat(updatedTableData);
+    // // set reservation status to "seated" using reservation id
+    // const updatedReservation = {
+    //     status: "seated", 
+    //     reservation_id: reservation_id,
+    // }
+   const data = await service.seat(Number(reservation_id), Number(table_id));
+    // await reservationService.update(updatedReservation);
+    // res.json({ data: updatedTable });
+    res.status(200).json({ data });
 }
 
 // finish an occupied table
