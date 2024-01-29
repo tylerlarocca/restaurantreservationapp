@@ -102,18 +102,25 @@ function tableStatusFree(req, res, next) {
     }    
 
 // validation middleware: checks if table status is free
-// function tableStatusOccupied(req, res, next) {
-//     const { status } = res.locals.table;
-//     console.log("line 108",status);
-//     if (status === "Occupied") {
-//         return next({
-//             status: 400, 
-//             message: "Table is occupied."
-//         });
-//     } else {
-//         return next();
-//     }
-// }
+function tableStatusOccupied(req, res, next) {
+    const reservation_id = res.locals.table.reservation_id;
+    if(reservation_id){
+        return next();
+    } else {
+        return next({
+            status:400,
+            message: "Table is not occupied."
+          })
+        }
+    }
+
+    function tableIsNotOccupied(req, res, next) {
+        const reservation_id = res.locals.table.reservation_id;
+        if (!reservation_id) {
+          return next({ status: 400, message: "table is not occupied" });
+        }
+        next();
+      }
 
 // list all tables - sorted by table_name
 async function list(req, res) {
@@ -203,7 +210,6 @@ module.exports = {
         asyncErrorBoundary(tableExists),
         asyncErrorBoundary(reservationExists),
         tableCapacity,
-        // tableStatusOccupied,
         tableStatusFree,
         asyncErrorBoundary(seat),
     ],
@@ -211,6 +217,8 @@ module.exports = {
         asyncErrorBoundary(validateTableId),
         asyncErrorBoundary(tableExists),
         asyncErrorBoundary(validateSeatedTable),
+       // asyncErrorBoundary(tableIsNotOccupied),
+        asyncErrorBoundary(tableStatusOccupied),
         asyncErrorBoundary(finish),
         ]
   };
