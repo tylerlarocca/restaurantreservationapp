@@ -32,12 +32,21 @@ function seat(reservation_id, table_id) {
 }
 
 // finish a table
-function finish(updatedTable) {
-    return knex("tables")
-        .select("*")
-        .where({ table_id: updatedTable.table_id })
-        .update(updatedTable, "*")
-        .then((updatedTables) => updatedTables[0]);
+function finish(reservation_id, table_id) {
+    return knex.transaction(trx => {
+        return knex("reservations")
+        .transacting(trx)
+        .where({ reservation_id: reservation_id })
+        .returning("*")
+        .then(() => {
+            return knex("tables")
+            .where({ table_id: table_id })
+            .update({ reservation_id: null })
+            .returning("*");
+        })
+        .then(trx.commit)
+        .catch(trx.rollback);
+    });
 }
 
 
