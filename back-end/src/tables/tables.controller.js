@@ -151,6 +151,26 @@ async function seat(req, res) {
     res.status(200).json({ data });
 }
 
+async function validateTableId(request, response, next) {
+    const { table_id } = request.params;
+    const table = await service.read(table_id);
+    if (!table) {
+    return next({
+    status: 404,
+    message: `table id ${table_id} does not exist`,
+    });
+    }
+    response.locals.table = table;
+    next();
+    }
+
+    async function validateSeatedTable(request, response, next) {
+        if (response.locals.table.status !== "occupied") {
+        return next({ status: 400, message: "this table is not occupied" });
+        }
+        next();
+        }
+
 // finish an occupied table
 async function finish(req, res) {
     const { table_id } = req.params;
@@ -188,7 +208,9 @@ module.exports = {
         asyncErrorBoundary(seat),
     ],
     finish: [
+        asyncErrorBoundary(validateTableId),
         asyncErrorBoundary(tableExists),
+        asyncErrorBoundary(validateSeatedTable),
         asyncErrorBoundary(finish),
-    ]
+        ]
   };
