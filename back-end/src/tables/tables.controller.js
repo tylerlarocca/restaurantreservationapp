@@ -170,12 +170,17 @@ async function validateTableId(request, response, next) {
     next();
     }
 
-    async function validateSeatedTable(request, response, next) {
-        if (response.locals.table.status !== "occupied") {
-        return next({ status: 400, message: "this table is not occupied" });
+    async function validateSeatedTable(req, res, next) {
+        const { reservation_id } = res.locals.table;
+        if (reservation_id) {
+        return next(); 
+        } else {
+        return next({
+        status: 400,
+        message: 'Table is not occupied.'
+        });
         }
-        next();
-        }
+        } 
 
 // finish an occupied table
 async function finish(req, res) {
@@ -191,6 +196,12 @@ async function finish(req, res) {
         status: "finished", 
         reservation_id: table.reservation_id,
     }
+    if (!table_id) {
+        return next({
+        status: 400,
+        message: "table_id is required for deleting a table."
+        });
+        } 
     await reservationService.update(updatedReservation); 
     res.json({ data: updatedTable });
 }
