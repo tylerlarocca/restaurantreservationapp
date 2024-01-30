@@ -1,0 +1,27 @@
+.tableCard {
+    width: 175px;
+    text-align: center;
+  }
+  
+  .tableShape {
+    padding: 20px;
+  }
+  
+  .double {
+    width: 60px;
+    height: 60px;
+    border-radius: 30px;
+    border: 2px solid black;
+  }
+  
+  .quad {
+    width: 60px;
+    height: 60px;
+    border: 2px solid black;
+  }
+  
+  .great {
+    width: 100px;
+    height: 60px;
+    border: 2px solid black;
+  }

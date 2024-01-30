@@ -1,8 +1,7 @@
-import React from "react";
-import Menu from "./Menu";
-import Routes from "./Routes";
-
-import "./Layout.css";
+import React from 'react';
+import Menu from '../../Components/Menu/Menu';
+import Routes from '../../Routes/Routes';
+import './Layout.css';
 
 /**
  * Defines the main layout of the application.
@@ -11,10 +10,10 @@ import "./Layout.css";
  *
  * @returns {JSX.Element}
  */
-function Layout() {
+const Layout = () => {
   return (
-    <div className="container-fluid">
-      <div className="row h-100">
+    <div className="container-fluid layout">
+      <div className="row">
         <div className="col-md-2 side-bar">
           <Menu />
         </div>
@@ -24,6 +23,6 @@ function Layout() {
       </div>
     </div>
   );
-}
+};
 
 export default Layout;

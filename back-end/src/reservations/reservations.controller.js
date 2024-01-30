@@ -72,10 +72,13 @@ function isNotOnTuesday(req, res, next) {
 }
 
 function isInTheFuture(req, res, next) {
-  const date = res.locals.date;
-  const today = new Date();
-  if (date < today) {
-    return next({ status: 400, message: "Must be a future date" });
+  const { data = {} } = req.body;
+  const date = data.reservation_date;
+  const time = data.reservation_time;
+  const formattedDate = new Date(`${date}T${time}`);
+
+  if (formattedDate < new Date()) {
+    return next({ status: 400, message: `Reservation must be in the future` });
   }
   next();
 }
@@ -167,7 +170,7 @@ async function create(req, res) {
 }
 
 async function read(req, res) {
-  const reservation = res.locals.reservation;
+  const reservation = await service.read(res.locals.reservation.reservation_id);
   res.json({ data: reservation });
 }
 
