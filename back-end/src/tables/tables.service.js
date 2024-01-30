@@ -1,59 +1,57 @@
-const knex = require("../db/connection");
+const knex = require('../db/connection');
 
-// list all tables - sorted by table_name
-function list() {
-    return knex("tables")
-        .select("*")
-        .orderBy("table_name");
-}
+const list = () => {
+  return knex('tables').select('*').orderBy('table_name');
+};
 
-// post a new table
-function create(table) {
-    return knex("tables")
-        .insert(table)
-        .returning("*")
-        .then((createdRecords) => createdRecords[0]);
-}
+const create = (table) => {
+  return knex('tables')
+    .insert(table)
+    .returning('*')
+    .then((newTables) => newTables[0]);
+};
 
-// read a table by table_id - exists for validation purposes only
-function read(table_id) {
-    return knex("tables")
-        .select("*")
-        .where({ table_id: table_id })
-        .then((readTables) => readTables[0]);
-}
+const read = (id) => {
+  return knex('tables')
+    .select('*')
+    .where({ table_id: id })
+    .then((result) => result[0]);
+};
 
-// seat a reservation at a table
-function seat(reservation_id, table_id) {
-    return knex("tables")
-          .where({ table_id })
-          .update({ reservation_id })
-          .returning("*")
-}
+const update = async (updatedTable, resId, updatedStatus) => {
+  try {
+    await knex.transaction(async (trx) => {
+      const returnedTable = await trx('tables')
+        .where({ table_id: updatedTable.table_id })
+        .update(updatedTable, '*')
+        .then((updatedTable) => updatedTable[0]);
 
-// finish a table
-function finish(reservation_id, table_id) {
-    return knex.transaction(trx => {
-        return knex("reservations")
-        .transacting(trx)
-        .where({ reservation_id: reservation_id })
-        .returning("*")
-        .then(() => {
-            return knex("tables")
-            .where({ table_id: table_id })
-            .update({ reservation_id: null })
-            .returning("*");
-        })
-        .then(trx.commit)
-        .catch(trx.rollback);
+      const returnedReservation = await trx('reservations')
+        .where({ reservation_id: resId })
+        .update({ status: updatedStatus }, '*')
+        .then((updatedReservations) => updatedReservations[0]);
     });
-}
+  } catch (error) {
+    console.error(error);
+  }
+};
 
+const updateTable = (updatedTable) => {
+  return knex('tables')
+    .where({ table_id: updatedTable.table_id })
+    .update(updatedTable, '*')
+    .then((table) => table[0]);
+};
+
+const destroy = (tableId) => {
+  return knex('tables').where({ table_id: tableId }).del();
+};
 
 module.exports = {
-    list,
-    create,
-    read,
-    seat,
-    finish,
-}
+  list,
+  create,
+  read,
+  update,
+  updateTable,
+  delete: destroy,
+};
