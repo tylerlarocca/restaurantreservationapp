@@ -2,7 +2,7 @@
 
 ## Website
 
-[Live Website](restaurantresfinal-tyler-laroccas-projects.vercel.app)
+[Live Website](https://restaurantresfinal-tyler-laroccas-projects.vercel.app/dashboard)
 
 ## Technology
 
