@@ -2,7 +2,7 @@
 
 ## Website
 
-[Live Website](https://rest-res87-client.herokuapp.com/dashboard)
+[Live Website](restaurantresfinal-kgketwzxr-tyler-laroccas-projects.vercel.app)
 
 ## Technology
 
