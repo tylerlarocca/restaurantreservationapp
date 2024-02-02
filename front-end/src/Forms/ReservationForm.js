@@ -82,6 +82,10 @@ const ReservationForm = () => {
     if (name === 'people' && typeof value === 'string') {
       value = +value;
     }
+    if (name === 'mobile_number') {
+      value = value.replace(/\D/g, ''); // Remove non-numeric characters
+      value = value.slice(0, 10); // Limit to 10 digits
+    }
 
     setFormData({ ...formData, [name]: value });
   };
